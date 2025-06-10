@@ -1,51 +1,70 @@
+package org.example;
 
-import org.example.HomePageScooter;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import java.util.Arrays;
+import java.util.Collection;
+
+import static junit.framework.TestCase.assertEquals;
 import static org.example.Resources.*;
 
+
+@RunWith(Parameterized.class)
 public class FAQTest {
     private WebDriver driver;
+    private HomePageScooter homePage;
+    private int questionNumber;
+    private String expectedAnswer;
 
-    @Test
-    public void FAQCorrectAnswerText() throws InterruptedException {
-        // Создать веб-драйвер для Google Chrome
+    public FAQTest(int questionNumber, String expectedAnswer) {
+        this.questionNumber = questionNumber;
+        this.expectedAnswer = expectedAnswer;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> provideFAQData() {
+        return Arrays.asList(new Object[][]{
+                {1, answer1Text},
+                {2, answer2Text},
+                {3, answer3Text},
+                {4, answer4Text},
+                {5, answer5Text},
+                {6, answer6Text},
+                {7, answer7Text},
+                {8, answer8Text}
+        });
+    }
+
+    @Before
+    public void setUp() {
         driver = new ChromeDriver();
-        // Открыть страницу домашнюю Яндекс Самокат
         driver.get("https://qa-scooter.praktikum-services.ru");
-        // Проскролить страницу до появления таблицы с вопросами
         WebElement tableFAQ = driver.findElement(By.xpath(".//div[@class='accordion']"));
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", tableFAQ);
-        // Создать объект класса с домашней страницей
-        HomePageScooter objHomePage = new HomePageScooter(driver);
-        // Проверка соответствия текста ответа с ожидаемым
-        objHomePage.clickQuestion1();
-        objHomePage.isCorrectText(objHomePage.getAnswer1(), answer1Text);
-        objHomePage.clickQuestion2();
-        objHomePage.isCorrectText(objHomePage.getAnswer2(), answer2Text);
-        objHomePage.clickQuestion3();
-        objHomePage.isCorrectText(objHomePage.getAnswer3(), answer3Text);
-        objHomePage.clickQuestion4();
-        objHomePage.isCorrectText(objHomePage.getAnswer4(), answer4Text);
-        objHomePage.clickQuestion5();
-        objHomePage.isCorrectText(objHomePage.getAnswer5(), answer5Text);
-        objHomePage.clickQuestion6();
-        objHomePage.isCorrectText(objHomePage.getAnswer6(), answer6Text);
-        objHomePage.clickQuestion7();
-        objHomePage.isCorrectText(objHomePage.getAnswer7(), answer7Text);
-        objHomePage.clickQuestion8();
-        Thread.sleep(100);
-        objHomePage.isCorrectText(objHomePage.getAnswer8(), answer8Text);
+        homePage = new HomePageScooter(driver);
     }
 
     @After
-    public void teardown() {
+    public void tearDown() {
         driver.quit();
     }
+
+    @Test
+    public void testFAQCorrectAnswerText() {
+        homePage.clickQuestion(questionNumber);
+        String actualAnswer = homePage.getAnswer(questionNumber);
+        System.out.println(actualAnswer);
+        assertEquals("Ответ на вопрос №" + questionNumber + " неверен.", expectedAnswer, actualAnswer);
+
+    }
+
 }
